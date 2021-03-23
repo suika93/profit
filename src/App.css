@@ -1,0 +1,59 @@
+body {
+  background-color: #0e1525;
+}
+
+label {
+  display: block;
+  width: 500px;
+  margin-bottom: 10px;
+  color: #eb451b;
+  font-size: 20px;
+}
+
+input, select {
+  width: 100px;
+  padding: 10px;
+  font-size: 18px;
+}
+
+.main-form {
+}
+.field-box {
+  margin-bottom: 10px;
+}
+
+.App {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.DisplayResults {
+  color: #fff;
+  font-size: 20px;
+}
+
+.DisplayResults h1,
+.DisplayResults span {
+  color: #20ab46;
+}
+
+.calculate-button {
+  background-color: #20ab46;
+  border: solid 1px #0e1525;
+  border-radius: 10px;
+  padding: 20px 30px;
+  font-size: 32px;
+  color: #fff;
+}
+
+.calculate-button:focus-visible {
+  border: none;
+}
+
+.profit {
+  font-size: 42px;
+}
