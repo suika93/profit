@@ -10,18 +10,20 @@ function Form() {
     "TIER": 5,
     "INGREDIENT_1_PRICE": 0,
     "INGREDIENT_2_PRICE": 0,
-    "PRODUCT_UNITY_PRICE": 0
+    "PRODUCT_UNITY_PRICE": 0,
+    "USAGE_FEE": 9
   }
 
   const onSubmit = (values) => {
     const requiredMaterials = albion.calculateRequiredMaterials(values.DESIRED_QUANTITY, { "tier": values.TIER })
-    const totalCost = albion.calculateProductionCost({
+    const totalCost = albion.calculateIngredientCost({
       ingredient1Price: values.INGREDIENT_1_PRICE,
       ingredient2Price: values.INGREDIENT_2_PRICE,
       ingredient1Quantity: requiredMaterials.ingredient1Used,
       ingredient2Quantity: requiredMaterials.ingredient2Used
     })
-    const profit = albion.calculateProfit(totalCost, values.PRODUCT_UNITY_PRICE, values.DESIRED_QUANTITY)
+    const usageFee = Math.ceil(albion.calculateUsageFee(values.USAGE_FEE, albion.getProductBaseValueFromTier(values.TIER)) * values.DESIRED_QUANTITY) 
+    const profit = albion.calculateProfit(totalCost, values.PRODUCT_UNITY_PRICE, values.DESIRED_QUANTITY) - usageFee
     const costPerProduct = albion.calculatePricePerProduct(values.DESIRED_QUANTITY, totalCost)
 
     setState({
@@ -29,6 +31,7 @@ function Form() {
       totalCost,
       profit,
       costPerProduct,
+      usageFee
     })
   }
 
@@ -66,6 +69,11 @@ function Form() {
             </div>
 
             <div className="field-box">
+              <label htmlFor="USAGE_FEE">Taxa de uso da construcao (0-100%):</label>
+              <input id="USAGE_FEE" name="USAGE_FEE" type="text" onChange={handleChange} value={values.USAGE_FEE} />
+            </div>
+
+            <div className="field-box">
               <label htmlFor="PRODUCT_UNITY_PRICE">Preco de venda unitario do produto fabricado:</label>
               <input id="PRODUCT_UNITY_PRICE" name="PRODUCT_UNITY_PRICE" type="text" onChange={handleChange} value={values.PRODUCT_UNITY_PRICE} />
             </div>
@@ -80,12 +88,13 @@ function DisplayResults() {
   //   console.log({ requiredMaterials, totalCost, profit, costPerProduct })
   const appContext = useAppContext()
   if(appContext.state === undefined) return (<div></div>);
-  console.log(appContext.state)
+
   const {
     requiredMaterials,
     totalCost,
     profit,
-    costPerProduct
+    costPerProduct,
+    usageFee
   } = appContext.state
 
   return (
@@ -95,6 +104,7 @@ function DisplayResults() {
       <p>Quantidade de Ingrediente 1: <span>{requiredMaterials.ingredient1Used}</span></p>
       <p>Quantidade de Ingrediente 2: <span>{requiredMaterials.ingredient2Used}</span></p>
       <p>Custo total dos ingredientes: <span>{totalCost}</span></p>
+      <p>Custo de uso da construcao: <span>{usageFee}</span></p>
       <p>Custo por produto fabricado: <span>{costPerProduct}</span></p>
       <p className="profit"><span>Lucro: {profit}</span></p>
     </div>

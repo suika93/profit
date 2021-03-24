@@ -1,4 +1,4 @@
-function getTierIngredientQuantity(tier) {
+function getIngredientQuantitiesForTier(tier) {
   switch(Number.parseInt(tier)) {
     case 3:
       return [2,1]
@@ -17,38 +17,41 @@ function getTierIngredientQuantity(tier) {
   }
 }
 
-function calculateRequiredMaterials(finalQuantity, options) {
-    if(finalQuantity < 200) {
-      throw new Error("Invalid finalQuantity. Required minumum 200")
-    }
-    const [ingredient1Quantity, ingredient2Quantity] = getTierIngredientQuantity(options.tier)
+function getProductBaseValueFromTier(tier) {
+  switch(Number.parseInt(tier)) {
+    case 3:
+      return 6
+    case 4: 
+      return 14
+    case 5:
+      return 30
+    case 6:
+      return 62
+    case 7:
+      return 126
+    case 8:
+      return 254
+    default:
+      throw new Error("Invalid tier value")
+  }
+}
 
-    let producedAmmount = 0
-    let ingredient1Used = 0
-    let ingredient2Used = 0
-    let iterations = 0
-    let remainingAmmount = finalQuantity
-    
-    while(producedAmmount < finalQuantity) {
-      if(remainingAmmount >= 200) {
-        producedAmmount += 200
-        ingredient1Used += ingredient1Quantity * 200 - Math.ceil(ingredient1Quantity * 200 * 0.366)
-        ingredient2Used += ingredient2Quantity * 200 - Math.ceil(ingredient2Quantity * 200 * 0.366)
-        remainingAmmount -= 200
-      }
-      else {
-        producedAmmount += remainingAmmount
-        ingredient1Used += ingredient1Quantity * remainingAmmount - Math.ceil(ingredient1Quantity * remainingAmmount * 0.366)
-        ingredient2Used += ingredient2Quantity * remainingAmmount - Math.ceil(ingredient2Quantity * remainingAmmount * 0.366)
-        remainingAmmount -= remainingAmmount
-      }
-      iterations++
-    }
+
+function calculateUsageFee(feeTax, productBaseValue) {
+  // FeePercentage * ProductValue * 5 / 100
+  return Number.parseInt(feeTax) * Number.parseInt(productBaseValue) * 5 / 100
+}
+
+function calculateRequiredMaterials(producedAmmount, options) {
+    const [ingredient1Quantity, ingredient2Quantity] = getIngredientQuantitiesForTier(options.tier)
+
+    const ingredient1Used = ingredient1Quantity * producedAmmount - Math.ceil(ingredient1Quantity * producedAmmount * 0.366)
+    const ingredient2Used = ingredient2Quantity * producedAmmount - Math.ceil(ingredient2Quantity * producedAmmount * 0.366)
   
-    return { producedAmmount, ingredient1Used, ingredient2Used, iterations }
+    return { producedAmmount, ingredient1Used, ingredient2Used }
 }
   
-function calculateProductionCost({ ingredient1Price, ingredient2Price, ingredient1Quantity, ingredient2Quantity}) {
+function calculateIngredientCost({ ingredient1Price, ingredient2Price, ingredient1Quantity, ingredient2Quantity }) {
     return ingredient1Price * ingredient1Quantity + ingredient2Price * ingredient2Quantity
 }
 
@@ -62,5 +65,5 @@ function calculateProfit(cost, sellPrice, quantitySold) {
     return totalSell - taxDiscount - cost
 }
 
-const albion = { calculatePricePerProduct, calculateProductionCost, calculateProfit, calculateRequiredMaterials }
+const albion = { calculatePricePerProduct, calculateIngredientCost, calculateProfit, calculateRequiredMaterials, calculateUsageFee, getProductBaseValueFromTier }
 export default albion
